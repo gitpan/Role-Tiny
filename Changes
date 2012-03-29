@@ -1,0 +1,76 @@
+1.000000 - 2012-03-29
+  - Remove redundant code in create_class_with_roles
+  - Minor doc fix to does_role
+  - Split Role::Tiny out into its own dist
+
+Changes below this line are from when Role::Tiny was still bundled with Moo:
+
+  - Fix a bug where coercions weren't called on lazy default/builder returns
+  - Switch Moo::Utils to using Module::Runtime, and add the 5.8 %INC
+    leakage fix into Role::Tiny's _load_module to provide partial parity
+  - Update incompatibilities with Moose documentation
+  - Remove Sub::Quote's outstanding queue since it doesn't actually slow
+    things down to do it this way and makes debugging easier.
+  - Revert 'local $@' around require calls to avoid triggering Unknown Error
+  - Explicitly require Role::Tiny in Role::Tiny::With (RT#70446)
+  - Fix spurious 'once' warnings under perl -w
+
+0.009013 - 2011-12-23
+  - fix up Class::XSAccessor version check to be more robust
+  - improved documentation
+  - fix failures on perls < 5.8.3
+  - fix test failures on cygwin
+
+0.009012 - 2011-11-15
+  - make Method::Generate::Constructor handle $obj->new
+  - fix bug where constants containing a reference weren't handled correctly
+    (ref(\[]) is 'REF' not 'SCALAR', ref(\v1) is 'VSTRING')
+
+0.009011 - 2011-10-03
+  - add support for DEMOLISH
+  - add support for BUILDARGS
+
+0.009010 - 2011-07-20
+  - missing new files for Role::Tiny::With
+
+0.009009 - 2011-07-20
+  - remove the big scary warning because we seem to be mostly working now
+  - perl based getter dies if @_ > 1 (XSAccessor already did)
+  - add Role::Tiny::With for use in classes
+  - automatically generate constructors in subclasses when required so that
+    subclasses with a BUILD method but no attributes get it honoured
+  - add coerce handling
+
+0.009008 - 2011-06-03
+  - transfer fix to _load_module to Role::Tiny and make a note it's an inline
+  - Bring back 5.8.1 compat
+
+0.009007 - 2011-02-25
+  - I botched the copyright. re-disting.
+
+0.009006 - 2011-02-25
+  - handle non-lazy default and builder when init_arg is undef
+  - add copyright and license info for downstream packagers
+  - weak ref checking for Sub::Quote to avoid bugs on refaddr reuse
+  - Switch composed role names to be a valid package name
+
+0.9.5 Tue Jan 11 2011
+  - Fix clobberage of runtime-installed wrappers by Sub::Defer
+  - Fix nonMoo constructor firing through multiple layers of Moo
+  - Fix bug where nonMoo is mistakenly detected given a Moo superclass
+    with no attributes (and hence no own constructor)
+
+0.9.4 Mon Dec 13 2010
+  - Automatic detection on non-Moo superclasses
+
+0.9.3 Sun Dec 5 2010
+  - Fix _load_module to deal with pre-existing subpackages
+
+0.9.2 Wed Nov 17 2010
+  - Add explanation of Moo's existence
+  - Change @ISA setting mechanism to deal with a big in 5.10.0's get_linear_isa
+  - Change 5.10 checks to >= to not try and load MRO::Compat on 5.10.0
+  - Make 'perl -Moo' DTRT
+
+0.9.1 Tue Nov 16 2010
+  - Initial release

@@ -1,0 +1,143 @@
+NAME
+    Role::Tiny - Roles. Like a nouvelle cusine portion size slice of Moose.
+
+SYNOPSIS
+     package Some::Role;
+
+     use Role::Tiny;
+
+     sub foo { ... }
+
+     sub bar { ... }
+
+     1;
+
+    else where
+
+     package Some::Class;
+
+     use Role::Tiny::With;
+
+     # bar gets imported, but not foo
+     with 'Some::Role';
+
+     sub foo { ... }
+
+     1;
+
+DESCRIPTION
+    "Role::Tiny" is a minimalist role composition tool.
+
+ROLE COMPOSITION
+    Role composition can be thought of as much more clever and meaningful
+    multiple inheritance. The basics of this implementation of roles is:
+
+    * If a method is already defined on a class, that method will not be
+      composed in from the role.
+
+    * If a method that the role "requires" to be implemented is not
+      implemented, role application will fail loudly.
+
+    Unlike Class::C3, where the last class inherited from "wins," role
+    composition is the other way around, where first wins. In a more
+    complete system (see Moose) roles are checked to see if they clash. The
+    goal of this is to be much simpler, hence disallowing composition of
+    multiple roles at once.
+
+METHODS
+  apply_role_to_package
+     Role::Tiny->apply_role_to_package('Some::Package', 'Some::Role');
+
+    Composes role with package. See also Role::Tiny::With.
+
+  apply_roles_to_object
+     Role::Tiny->apply_roles_to_object($foo, qw(Some::Role1 Some::Role2));
+
+    Composes roles in order into object directly. Object is reblessed into
+    the resulting class.
+
+  create_class_with_roles
+     Role::Tiny->create_class_with_roles('Some::Base', qw(Some::Role1 Some::Role2));
+
+    Creates a new class based on base, with the roles composed into it in
+    order. New class is returned.
+
+SUBROUTINES
+  does_role
+     if (Role::Tiny::does_role($foo, 'Some::Role')) {
+       ...
+     }
+
+    Returns true if class has been composed with role.
+
+    This subroutine is also installed as ->does on any class a Role::Tiny is
+    composed into unless that class already has an ->does method, so
+
+      if ($foo->does('Some::Role')) {
+        ...
+      }
+
+    will work for classes but to test a role, one must use ::does_role
+    directly
+
+IMPORTED SUBROUTINES
+  requires
+     requires qw(foo bar);
+
+    Declares a list of methods that must be defined to compose role.
+
+  with
+     with 'Some::Role1';
+     with 'Some::Role2';
+
+    Composes another role into the current role. Only one role may be
+    composed in at a time to allow the code to remain as simple as possible.
+
+  before
+     before foo => sub { ... };
+
+    See "before method(s) => sub { ... }" in Class::Method::Modifiers for
+    full documentation.
+
+  around
+     around foo => sub { ... };
+
+    See "around method(s) => sub { ... }" in Class::Method::Modifiers for
+    full documentation.
+
+  after
+     after foo => sub { ... };
+
+    See "after method(s) => sub { ... }" in Class::Method::Modifiers for
+    full documentation.
+
+AUTHOR
+    mst - Matt S. Trout (cpan:MSTROUT) <mst@shadowcat.co.uk>
+
+CONTRIBUTORS
+    dg - David Leadbeater (cpan:DGL) <dgl@dgl.cx>
+
+    frew - Arthur Axel "fREW" Schmidt (cpan:FREW) <frioux@gmail.com>
+
+    hobbs - Andrew Rodland (cpan:ARODLAND) <arodland@cpan.org>
+
+    jnap - John Napiorkowski (cpan:JJNAPIORK) <jjn1056@yahoo.com>
+
+    ribasushi - Peter Rabbitson (cpan:RIBASUSHI) <ribasushi@cpan.org>
+
+    chip - Chip Salzenberg (cpan:CHIPS) <chip@pobox.com>
+
+    ajgb - Alex J. G. Burzyński (cpan:AJGB) <ajgb@cpan.org>
+
+    doy - Jesse Luehrs (cpan:DOY) <doy at tozt dot net>
+
+    perigrin - Chris Prather (cpan:PERIGRIN) <chris@prather.org>
+
+COPYRIGHT
+    Copyright (c) 2010-2012 the Role::Tiny "AUTHOR" and "CONTRIBUTORS" as
+    listed above.
+
+LICENSE
+    This library is free software and may be distributed under the same
+    terms as perl itself.
+
