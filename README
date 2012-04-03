@@ -1,5 +1,5 @@
 NAME
-    Role::Tiny - Roles. Like a nouvelle cusine portion size slice of Moose.
+    Role::Tiny - Roles. Like a nouvelle cuisine portion size slice of Moose.
 
 SYNOPSIS
      package Some::Role;
@@ -9,6 +9,8 @@ SYNOPSIS
      sub foo { ... }
 
      sub bar { ... }
+
+     around baz => sub { ... }
 
      1;
 
@@ -23,7 +25,12 @@ SYNOPSIS
 
      sub foo { ... }
 
+     # baz is wrapped in the around modifier by Class::Method::Modifiers
+     sub baz { ... }
+
      1;
+
+    If you wanted attributes as well, look at Moo::Role.
 
 DESCRIPTION
     "Role::Tiny" is a minimalist role composition tool.
@@ -99,17 +106,41 @@ IMPORTED SUBROUTINES
     See "before method(s) => sub { ... }" in Class::Method::Modifiers for
     full documentation.
 
+    Note that since you are not required to use method modifiers,
+    Class::Method::Modifiers is lazily loaded and we do not declare it as a
+    dependency. If your Role::Tiny role uses modifiers you must depend on
+    both Class::Method::Modifiers and Role::Tiny.
+
   around
      around foo => sub { ... };
 
     See "around method(s) => sub { ... }" in Class::Method::Modifiers for
     full documentation.
 
+    Note that since you are not required to use method modifiers,
+    Class::Method::Modifiers is lazily loaded and we do not declare it as a
+    dependency. If your Role::Tiny role uses modifiers you must depend on
+    both Class::Method::Modifiers and Role::Tiny.
+
   after
      after foo => sub { ... };
 
     See "after method(s) => sub { ... }" in Class::Method::Modifiers for
     full documentation.
+
+    Note that since you are not required to use method modifiers,
+    Class::Method::Modifiers is lazily loaded and we do not declare it as a
+    dependency. If your Role::Tiny role uses modifiers you must depend on
+    both Class::Method::Modifiers and Role::Tiny.
+
+SEE ALSO
+    Role::Tiny is the attribute-less subset of Moo::Role; Moo::Role is a
+    meta-protocol-less subset of the king of role systems, Moose::Role.
+
+    If you don't want method modifiers and do want to be forcibly restricted
+    to a single role application per class, Ovid's Role::Basic exists. But
+    Stevan Little (the Moose author) and I are both still convinced that
+    he's Doing It Wrong.
 
 AUTHOR
     mst - Matt S. Trout (cpan:MSTROUT) <mst@shadowcat.co.uk>

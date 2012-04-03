@@ -1,5 +1,5 @@
 {
-   "abstract" : "Roles. Like a nouvelle cusine portion size slice of Moose.",
+   "abstract" : "Roles. Like a nouvelle cuisine portion size slice of Moose.",
    "author" : [
       "mst - Matt S. Trout (cpan:MSTROUT) <mst@shadowcat.co.uk>"
    ],
@@ -36,5 +36,5 @@
       }
    },
    "release_status" : "stable",
-   "version" : "1.000000"
+   "version" : "1.000001"
 }

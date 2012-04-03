@@ -5,6 +5,7 @@ maint/bump-version
 maint/Makefile.PL.include
 Makefile.PL
 MANIFEST			This list of files
+t/modifiers.t
 t/role-tiny-with.t
 t/role-tiny.t
 META.yml                                 Module YAML meta-data (added by MakeMaker)
