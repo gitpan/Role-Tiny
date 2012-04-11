@@ -6,12 +6,13 @@ sub _getstash { \%{"$_[0]::"} }
 use strict;
 use warnings FATAL => 'all';
 
-our $VERSION = '1.000001'; # 1.0.1
+our $VERSION = '1.000_900'; # 1.0.900
 $VERSION = eval $VERSION;
 
 our %INFO;
 our %APPLIED_TO;
 our %COMPOSED;
+our %COMPOSITE_INFO;
 
 # Module state workaround totally stolen from Zefram's Module::Runtime.
 
@@ -56,8 +57,7 @@ sub import {
     push @{$INFO{$target}{requires}||=[]}, @_;
   };
   *{_getglob "${target}::with"} = sub {
-    die "Only one role supported at a time by with" if @_ > 1;
-    $me->apply_role_to_package($target, $_[0]);
+    $me->apply_roles_to_package($target, @_);
   };
   # grab all *non-constant* (stash slot is not a scalarref) subs present
   # in the symbol table and store their refaddrs (no need to forcibly
@@ -70,7 +70,7 @@ sub import {
   $APPLIED_TO{$target} = { $target => undef };
 }
 
-sub apply_role_to_package {
+sub apply_single_role_to_package {
   my ($me, $to, $role) = @_;
 
   _load_module($role);
@@ -105,6 +105,14 @@ sub create_class_with_roles {
   my ($me, $superclass, @roles) = @_;
 
   die "No roles supplied!" unless @roles;
+
+  {
+    my %seen;
+    $seen{$_}++ for @roles;
+    if (my @dupes = grep $seen{$_} > 1, @roles) {
+      die "Duplicated roles: ".join(', ', @dupes);
+    }
+  }
 
   my $new_name = join(
     '__WITH__', $superclass, my $compose_name = join '__AND__', @roles
@@ -142,6 +150,47 @@ sub create_class_with_roles {
 
   $COMPOSED{class}{$new_name} = 1;
   return $new_name;
+}
+
+# preserved for compat, and apply_roles_to_package calls it to allow an
+# updated Role::Tiny to use a non-updated Moo::Role
+
+sub apply_role_to_package { shift->apply_single_role_to_package(@_) }
+
+sub apply_roles_to_package {
+  my ($me, $to, @roles) = @_;
+
+  return $me->apply_role_to_package($to, $roles[0]) if @roles == 1;
+
+  my %conflicts = %{$me->_composite_info_for(@roles)->{conflicts}};
+  delete $conflicts{$_} for $me->_concrete_methods_of($to);
+  if (keys %conflicts) {
+    my $fail = 
+      join "\n",
+        map {
+          "Due to a method name conflict between roles "
+          ."'".join(' and ', sort values %{$conflicts{$_}})."'"
+          .", the method '$_' must be implemented by '${to}'"
+        } keys %conflicts;
+    die $fail;
+  }
+  delete $INFO{$to}{methods}; # reset since we're about to add methods
+  $me->apply_role_to_package($to, $_) for @roles;
+  $APPLIED_TO{$to}{join('|',@roles)} = 1;
+}
+
+sub _composite_info_for {
+  my ($me, @roles) = @_;
+  $COMPOSITE_INFO{join('|', sort @roles)} ||= do {
+    _load_module($_) for @roles;
+    my %methods;
+    foreach my $role (@roles) {
+      my $this_methods = $me->_concrete_methods_of($role);
+      $methods{$_}{$this_methods->{$_}} = $role for keys %$this_methods;
+    }
+    delete $methods{$_} for grep keys(%{$methods{$_}}) == 1, keys %methods;
+    +{ conflicts => \%methods }
+  };
 }
 
 sub _composable_package_for {
@@ -185,18 +234,16 @@ sub _check_requires {
 sub _concrete_methods_of {
   my ($me, $role) = @_;
   my $info = $INFO{$role};
-  $info->{methods} ||= do {
-    # grab role symbol table
-    my $stash = do { no strict 'refs'; \%{"${role}::"}};
-    my $not_methods = $info->{not_methods};
-    +{
-      # grab all code entries that aren't in the not_methods list
-      map {
-        my $code = *{$stash->{$_}}{CODE};
-        # rely on the '' key we added in import for "no code here"
-        exists $not_methods->{$code||''} ? () : ($_ => $code)
-      } grep !ref($stash->{$_}), keys %$stash
-    };
+  # grab role symbol table
+  my $stash = do { no strict 'refs'; \%{"${role}::"}};
+  my $not_methods = $info->{not_methods};
+  $info->{methods} ||= +{
+    # grab all code entries that aren't in the not_methods list
+    map {
+      my $code = *{$stash->{$_}}{CODE};
+      # rely on the '' key we added in import for "no code here"
+      exists $not_methods->{$code||''} ? () : ($_ => $code)
+    } grep !ref($stash->{$_}), keys %$stash
   };
 }
 
@@ -312,15 +359,18 @@ role application will fail loudly.
 =back
 
 Unlike L<Class::C3>, where the B<last> class inherited from "wins," role
-composition is the other way around, where first wins.  In a more complete
-system (see L<Moose>) roles are checked to see if they clash.  The goal of this
-is to be much simpler, hence disallowing composition of multiple roles at once.
+composition is the other way around, where the class wins. If multiple roles
+are applied in a single call (single with statement), then if any of their
+provided methods clash, an exception is raised unless the class provides
+a method since this conflict indicates a potential problem.
 
 =head1 METHODS
 
-=head2 apply_role_to_package
+=head2 apply_roles_to_package
 
- Role::Tiny->apply_role_to_package('Some::Package', 'Some::Role');
+ Role::Tiny->apply_roles_to_package(
+   'Some::Package', 'Some::Role', 'Some::Other::Role'
+ );
 
 Composes role with package.  See also L<Role::Tiny::With>.
 
@@ -368,10 +418,19 @@ Declares a list of methods that must be defined to compose role.
 =head2 with
 
  with 'Some::Role1';
+
+ with 'Some::Role1', 'Some::Role2';
+
+Composes another role into the current role (or class via L<Role::Tiny::With>).
+
+If you have conflicts and want to resolve them in favour of Some::Role1 you
+can instead write: 
+
+ with 'Some::Role1';
  with 'Some::Role2';
 
-Composes another role into the current role.  Only one role may be composed in
-at a time to allow the code to remain as simple as possible.
+If you have conflicts and want to resolve different conflicts in favour of
+different roles, please refactor your codebase.
 
 =head2 before
 
@@ -416,8 +475,10 @@ a meta-protocol-less subset of the king of role systems, L<Moose::Role>.
 
 If you don't want method modifiers and do want to be forcibly restricted
 to a single role application per class, Ovid's L<Role::Basic> exists. But
-Stevan Little (the L<Moose> author) and I are both still convinced that
-he's Doing It Wrong.
+Stevan Little (the L<Moose> author) don't find the additional restrictions
+to be amazingly helpful in most cases; L<Role::Basic>'s choices are more
+a guide to what you should prefer doing, to our mind, rather than something
+that needs to be enforced.
 
 =head1 AUTHOR
 

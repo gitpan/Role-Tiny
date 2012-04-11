@@ -46,14 +46,16 @@ ROLE COMPOSITION
       implemented, role application will fail loudly.
 
     Unlike Class::C3, where the last class inherited from "wins," role
-    composition is the other way around, where first wins. In a more
-    complete system (see Moose) roles are checked to see if they clash. The
-    goal of this is to be much simpler, hence disallowing composition of
-    multiple roles at once.
+    composition is the other way around, where the class wins. If multiple
+    roles are applied in a single call (single with statement), then if any
+    of their provided methods clash, an exception is raised unless the class
+    provides a method since this conflict indicates a potential problem.
 
 METHODS
-  apply_role_to_package
-     Role::Tiny->apply_role_to_package('Some::Package', 'Some::Role');
+  apply_roles_to_package
+     Role::Tiny->apply_roles_to_package(
+       'Some::Package', 'Some::Role', 'Some::Other::Role'
+     );
 
     Composes role with package. See also Role::Tiny::With.
 
@@ -95,10 +97,20 @@ IMPORTED SUBROUTINES
 
   with
      with 'Some::Role1';
+
+     with 'Some::Role1', 'Some::Role2';
+
+    Composes another role into the current role (or class via
+    Role::Tiny::With).
+
+    If you have conflicts and want to resolve them in favour of Some::Role1
+    you can instead write:
+
+     with 'Some::Role1';
      with 'Some::Role2';
 
-    Composes another role into the current role. Only one role may be
-    composed in at a time to allow the code to remain as simple as possible.
+    If you have conflicts and want to resolve different conflicts in favour
+    of different roles, please refactor your codebase.
 
   before
      before foo => sub { ... };
@@ -139,8 +151,10 @@ SEE ALSO
 
     If you don't want method modifiers and do want to be forcibly restricted
     to a single role application per class, Ovid's Role::Basic exists. But
-    Stevan Little (the Moose author) and I are both still convinced that
-    he's Doing It Wrong.
+    Stevan Little (the Moose author) don't find the additional restrictions
+    to be amazingly helpful in most cases; Role::Basic's choices are more a
+    guide to what you should prefer doing, to our mind, rather than
+    something that needs to be enforced.
 
 AUTHOR
     mst - Matt S. Trout (cpan:MSTROUT) <mst@shadowcat.co.uk>
