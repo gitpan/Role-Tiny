@@ -6,7 +6,7 @@ sub _getstash { \%{"$_[0]::"} }
 use strict;
 use warnings FATAL => 'all';
 
-our $VERSION = '1.001002'; # 1.1.2
+our $VERSION = '1.001003'; # 1.1.3
 $VERSION = eval $VERSION;
 
 our %INFO;
@@ -51,21 +51,23 @@ sub import {
     *{_getglob "${target}::${type}"} = sub {
       require Class::Method::Modifiers;
       push @{$INFO{$target}{modifiers}||=[]}, [ $type => @_ ];
+      return;
     };
   }
   *{_getglob "${target}::requires"} = sub {
     push @{$INFO{$target}{requires}||=[]}, @_;
+    return;
   };
   *{_getglob "${target}::with"} = sub {
     $me->apply_roles_to_package($target, @_);
+    return;
   };
   # grab all *non-constant* (stash slot is not a scalarref) subs present
   # in the symbol table and store their refaddrs (no need to forcibly
   # inflate constant subs into real subs) - also add '' to here (this
-  # is used later)
-  @{$INFO{$target}{not_methods}={}}{
-    '', map { *$_{CODE}||() } grep !ref($_), values %$stash
-  } = ();
+  # is used later) with a map to the coderefs in case of copying or re-use
+  my @not_methods = ('', map { *$_{CODE}||() } grep !ref($_), values %$stash);
+  @{$INFO{$target}{not_methods}={}}{@not_methods} = @not_methods;
   # a role does itself
   $APPLIED_TO{$target} = { $target => undef };
 }
@@ -131,6 +133,18 @@ sub create_class_with_roles {
     require MRO::Compat;
   }
 
+  my %conflicts = %{$me->_composite_info_for(@roles)->{conflicts}};
+  if (keys %conflicts) {
+    my $fail = 
+      join "\n",
+        map {
+          "Method name conflict for '$_' between roles "
+          ."'".join(' and ', sort values %{$conflicts{$_}})."'"
+          .", cannot apply these simultaneously to an object."
+        } keys %conflicts;
+    die $fail;
+  }
+
   my @composable = map $me->_composable_package_for($_), reverse @roles;
 
   *{_getglob("${new_name}::ISA")} = [ @composable, $superclass ];
@@ -174,7 +188,14 @@ sub apply_roles_to_package {
         } keys %conflicts;
     die $fail;
   }
-  delete $INFO{$to}{methods}; # reset since we're about to add methods
+
+  # the if guard here is essential since otherwise we accidentally create
+  # a $INFO for something that isn't a Role::Tiny (or Moo::Role) because
+  # autovivification hates us and wants us to die()
+  if ($INFO{$to}) {
+    delete $INFO{$to}{methods}; # reset since we're about to add methods
+  }
+
   $me->apply_role_to_package($to, $_) for @roles;
   $APPLIED_TO{$to}{join('|',@roles)} = 1;
 }
@@ -236,7 +257,9 @@ sub _concrete_methods_of {
   my $info = $INFO{$role};
   # grab role symbol table
   my $stash = do { no strict 'refs'; \%{"${role}::"}};
-  my $not_methods = $info->{not_methods};
+  # reverse so our keys become the values (captured coderefs) in case
+  # they got copied or re-used since
+  my $not_methods = { reverse %{$info->{not_methods}||{}} };
   $info->{methods} ||= +{
     # grab all code entries that aren't in the not_methods list
     map {

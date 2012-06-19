@@ -1,3 +1,10 @@
+1.001003 - 2012-06-19
+  - correctly apply modifiers with role composition
+  - check for conflicts during role-to-object application (test from mmcleric)
+  - add an explicit return to all exported subs so people don't accidentally
+    rely on the return value
+  - store coderefs as well as their refaddrs to protect against crazy
+
 1.001002 - 2012-05-05
   - alter duplication test to not provoke Class::Method::Modifiers loading
 
