@@ -4,7 +4,7 @@ lib/Role/Tiny/With.pm
 maint/bump-version
 maint/Makefile.PL.include
 Makefile.PL
-MANIFEST
+MANIFEST			This list of files
 t/modifiers.t
 t/role-basic-00-load.t
 t/role-basic-basic.t
@@ -20,6 +20,7 @@ t/role-duplication.t
 t/role-tiny-composition.t
 t/role-tiny-with.t
 t/role-tiny.t
+t/role-with-inheritance.t
 META.yml                                 Module YAML meta-data (added by MakeMaker)
 META.json                                Module JSON meta-data (added by MakeMaker)
 README                                   README file (added by Distar)
