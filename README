@@ -123,7 +123,11 @@ SUBROUTINES
       }
 
     will work for classes but to test a role, one must use ::does_role
-    directly
+    directly.
+
+    Additionally, Role::Tiny will override the standard Perl "DOES" method
+    for your class. However, if "any" class in your class' inheritance
+    heirarchy provides "DOES", then Role::Tiny will not override it.
 
 METHODS
   apply_roles_to_package
@@ -181,7 +185,9 @@ CONTRIBUTORS
     Mithaldu - Christian Walde (cpan:MITHALDU)
     <walde.christian@googlemail.com>
 
-    ilmari - Dagfinn Ilmari Manns�ker (cpan:ILMARI) <ilmari@ilmari.org>
+    ilmari - Dagfinn Ilmari Mannsåker (cpan:ILMARI) <ilmari@ilmari.org>
+
+    tobyink - Toby Inkster (cpan:TOBYINK) <tobyink@cpan.org>
 
 COPYRIGHT
     Copyright (c) 2010-2012 the Role::Tiny "AUTHOR" and "CONTRIBUTORS" as
@@ -190,12 +196,4 @@ COPYRIGHT
 LICENSE
     This library is free software and may be distributed under the same
     terms as perl itself.
-
-POD ERRORS
-    Hey! The above document had some coding errors, which are explained
-    below:
-
-    Around line 532:
-        Non-ASCII character seen before =encoding in 'Burzyński'. Assuming
-        UTF-8
 
