@@ -6,7 +6,7 @@ sub _getstash { \%{"$_[0]::"} }
 use strict;
 use warnings FATAL => 'all';
 
-our $VERSION = '1.002000'; # 1.2.0
+our $VERSION = '1.002001'; # 1.2.1
 $VERSION = eval $VERSION;
 
 our %INFO;
@@ -321,7 +321,7 @@ sub _install_does {
   # add does() only if they don't have one
   *{_getglob "${to}::does"} = \&does_role unless $to->can('does');
   
-  return if ($to->can('DOES') and $to->can('DOES') != UNIVERSAL->can('DOES'));
+  return if ($to->can('DOES') and $to->can('DOES') != (UNIVERSAL->can('DOES') || 0));
   
   my $existing = $to->can('DOES') || $to->can('isa') || $FALLBACK;
   my $new_sub = sub {
