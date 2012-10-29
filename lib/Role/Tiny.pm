@@ -6,7 +6,7 @@ sub _getstash { \%{"$_[0]::"} }
 use strict;
 use warnings FATAL => 'all';
 
-our $VERSION = '1.002002'; # 1.2.2
+our $VERSION = '1.002003'; # 1.2.3
 $VERSION = eval $VERSION;
 
 our %INFO;
@@ -45,7 +45,7 @@ sub import {
   warnings->import(FATAL => 'all');
   return if $INFO{$target}; # already exported into this package
   # get symbol table reference
-  my $stash = do { no strict 'refs'; \%{"${target}::"} };
+  my $stash = _getstash($target);
   # install before/after/around subs
   foreach my $type (qw(before after around)) {
     *{_getglob "${target}::${type}"} = sub {
@@ -214,7 +214,11 @@ sub _composable_package_for {
   return $composed_name if $COMPOSED{role}{$composed_name};
   $me->_install_methods($composed_name, $role);
   my $base_name = $composed_name.'::_BASE';
-  *{_getglob("${composed_name}::ISA")} = [ $base_name ];
+  # Not using _getglob, since setting @ISA via the typeglob breaks
+  # inheritance on 5.10.0 if the stash has previously been accessed an
+  # then a method called on the class (in that order!), which
+  # ->_install_methods (with the help of ->_install_does) ends up doing.
+  { no strict 'refs'; @{"${composed_name}::ISA"} = ( $base_name ); }
   my $modifiers = $INFO{$role}{modifiers}||[];
   my @mod_base;
   foreach my $modified (
@@ -250,7 +254,7 @@ sub _concrete_methods_of {
   my ($me, $role) = @_;
   my $info = $INFO{$role};
   # grab role symbol table
-  my $stash = do { no strict 'refs'; \%{"${role}::"}};
+  my $stash = _getstash($role);
   # reverse so our keys become the values (captured coderefs) in case
   # they got copied or re-used since
   my $not_methods = { reverse %{$info->{not_methods}||{}} };
@@ -278,7 +282,7 @@ sub _install_methods {
   my $methods = $me->_concrete_methods_of($role);
 
   # grab target symbol table
-  my $stash = do { no strict 'refs'; \%{"${to}::"}};
+  my $stash = _getstash($to);
 
   # determine already extant methods of target
   my %has_methods;
