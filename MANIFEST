@@ -4,13 +4,14 @@ lib/Role/Tiny/With.pm
 maint/bump-version
 maint/Makefile.PL.include
 Makefile.PL
-MANIFEST
+MANIFEST			This list of files
 t/around-does.t
 t/compose-modifiers.t
-t/does-Moo.t
+t/concrete-methods.t
 t/does.t
 t/lib/Bar.pm
 t/lib/Baz.pm
+t/method-conflicts.t
 t/modifiers.t
 t/namespace-clean.t
 t/role-basic-00-load.t
@@ -28,6 +29,7 @@ t/role-tiny-composition.t
 t/role-tiny-with.t
 t/role-tiny.t
 t/role-with-inheritance.t
+t/subclass.t
 xt/does-Moo.t
 META.yml                                 Module YAML meta-data (added by MakeMaker)
 META.json                                Module JSON meta-data (added by MakeMaker)
