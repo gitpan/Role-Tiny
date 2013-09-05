@@ -4,7 +4,7 @@
       "mst - Matt S. Trout (cpan:MSTROUT) <mst@shadowcat.co.uk>"
    ],
    "dynamic_config" : 1,
-   "generated_by" : "ExtUtils::MakeMaker version 6.68, CPAN::Meta::Converter version 2.131560",
+   "generated_by" : "ExtUtils::MakeMaker version 6.74, CPAN::Meta::Converter version 2.120921",
    "license" : [
       "perl_5"
    ],
@@ -27,20 +27,23 @@
             "Test::More" : "0.96"
          }
       },
-      "configure" : {
-         "requires" : {
-            "ExtUtils::MakeMaker" : "0"
-         }
-      },
       "runtime" : {
-         "requires" : {}
+         "requires" : {
+            "Exporter" : "5.57"
+         }
       }
    },
    "release_status" : "stable",
    "resources" : {
+      "bugtracker" : {
+         "mailto" : "bug-Role-Tiny@rt.cpan.org",
+         "web" : "https://rt.cpan.org/Public/Dist/Display.html?Name=Role-Tiny"
+      },
       "repository" : {
-         "url" : "git://git.shadowcat.co.uk/gitmo/Role-Tiny.git"
+         "type" : "git",
+         "url" : "git://git.shadowcat.co.uk/gitmo/Role-Tiny.git",
+         "web" : "http://git.shadowcat.co.uk/gitweb/gitweb.cgi?p=gitmo/Role-Tiny.git"
       }
    },
-   "version" : "1.003001"
+   "version" : "1.003002"
 }

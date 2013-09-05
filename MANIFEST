@@ -25,6 +25,7 @@ t/role-basic/lib/MyTests.pm
 t/role-basic/lib/TestMethods.pm
 t/role-basic/lib/Try/Tiny.pm
 t/role-duplication.t
+t/role-long-package-name.t
 t/role-tiny-composition.t
 t/role-tiny-with.t
 t/role-tiny.t

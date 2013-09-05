@@ -5,10 +5,8 @@ author:
 build_requires:
   Test::Fatal: 0.003
   Test::More: 0.96
-configure_requires:
-  ExtUtils::MakeMaker: 0
 dynamic_config: 1
-generated_by: 'ExtUtils::MakeMaker version 6.68, CPAN::Meta::Converter version 2.131560'
+generated_by: 'ExtUtils::MakeMaker version 6.74, CPAN::Meta::Converter version 2.120921'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -19,7 +17,9 @@ no_index:
     - t
     - inc
     - xt
-requires: {}
+requires:
+  Exporter: 5.57
 resources:
+  bugtracker: https://rt.cpan.org/Public/Dist/Display.html?Name=Role-Tiny
   repository: git://git.shadowcat.co.uk/gitmo/Role-Tiny.git
-version: 1.003001
+version: 1.003002
