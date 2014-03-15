@@ -107,6 +107,14 @@ IMPORTED SUBROUTINES
     dependency. If your Role::Tiny role uses modifiers you must depend on
     both Class::Method::Modifiers and Role::Tiny.
 
+  Strict and Warnings
+    In addition to importing subroutines, using "Role::Tiny" applies strict
+    and fatal warnings to the caller. It's possible to disable these if
+    desired:
+
+     use Role::Tiny;
+     use warnings NONFATAL => 'all';
+
 SUBROUTINES
   does_role
      if (Role::Tiny::does_role($foo, 'Some::Role')) {
@@ -154,16 +162,16 @@ METHODS
 
     Returns true if the given package is a role.
 
+CAVEATS
+    *   On perl 5.8.8 and earlier, applying a role to an object won't apply
+        any overloads from the role to all copies of the object.
+
 SEE ALSO
     Role::Tiny is the attribute-less subset of Moo::Role; Moo::Role is a
     meta-protocol-less subset of the king of role systems, Moose::Role.
 
-    If you don't want method modifiers and do want to be forcibly restricted
-    to a single role application per class, Ovid's Role::Basic exists. But
-    Stevan Little (the Moose author) and I don't find the additional
-    restrictions to be amazingly helpful in most cases; Role::Basic's
-    choices are more a guide to what you should prefer doing, to our mind,
-    rather than something that needs to be enforced.
+    Ovid's Role::Basic provides roles with a similar scope, but without
+    method modifiers, and having some extra usage restrictions.
 
 AUTHOR
     mst - Matt S. Trout (cpan:MSTROUT) <mst@shadowcat.co.uk>
@@ -193,6 +201,8 @@ CONTRIBUTORS
     ilmari - Dagfinn Ilmari Mannsåker (cpan:ILMARI) <ilmari@ilmari.org>
 
     tobyink - Toby Inkster (cpan:TOBYINK) <tobyink@cpan.org>
+
+    haarg - Graham Knop (cpan:HAARG) <haarg@haarg.org>
 
 COPYRIGHT
     Copyright (c) 2010-2012 the Role::Tiny "AUTHOR" and "CONTRIBUTORS" as
