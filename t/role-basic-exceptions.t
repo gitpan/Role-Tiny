@@ -1,5 +1,7 @@
-use lib 'lib', 't/role-basic/lib';
-use MyTests;
+use strict;
+use warnings FATAL => 'all';
+use lib 't/role-basic/lib';
+use Test::More;
 require Role::Tiny;
 
 {

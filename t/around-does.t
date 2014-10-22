@@ -1,3 +1,5 @@
+use strict;
+use warnings FATAL => 'all';
 use Test::More;
 
 BEGIN {
@@ -9,24 +11,24 @@ my $pass;
 my $pass2;
 
 BEGIN {
-	package Local::Role;
-	use Role::Tiny;
-	around does => sub {
-		my ($orig, $self, @args) = @_;
-		$pass++;
-		return $self->$orig(@args);
-	};
-	around DOES => sub {
-		my ($orig, $self, @args) = @_;
-		$pass2++;
-		return $self->$orig(@args);
-	};
+    package Local::Role;
+    use Role::Tiny;
+    around does => sub {
+        my ($orig, $self, @args) = @_;
+        $pass++;
+        return $self->$orig(@args);
+    };
+    around DOES => sub {
+        my ($orig, $self, @args) = @_;
+        $pass2++;
+        return $self->$orig(@args);
+    };
 }
 
 BEGIN {
-	package Local::Class;
-	use Role::Tiny::With;
-	with 'Local::Role';
+    package Local::Class;
+    use Role::Tiny::With;
+    with 'Local::Role';
 }
 
 ok(Local::Class->does('Local::Role'));
